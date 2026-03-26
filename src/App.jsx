@@ -344,7 +344,7 @@ function Dashboard({ companies, projects, opportunities }) {
 // ─── SETTINGS ────────────────────────────────────────────────────────────────
 function Settings({ responsibles, setResponsibles, products, setProducts }) {
   const blankR = { name:'', role:'', email:'', tel:'' };
-  const blankP = { name:'', category:'', listPrice:0, unit:'', description:'' };
+  const blankP = { name:'', category:'', list_price:0, unit:'', description:'' };
   const [rModal,setRModal] = useState(false);
   const [rForm, setRForm]  = useState(blankR);
   const [pModal,setPModal] = useState(false);
@@ -391,7 +391,7 @@ function Settings({ responsibles, setResponsibles, products, setProducts }) {
   const pCols = [
     { key:'name',      label:'Name',       render:v=><b style={{color:C.accent}}>{v}</b> },
     { key:'category',  label:'Category',   render:v=>v?<Badge label={v} color={C.orange}/>:'–' },
-    { key:'listPrice', label:'List Price', render:v=><span style={{color:C.success,fontWeight:700}}>{fmtEur(v)}</span> },
+    { key:'list_price', label:'List Price', render:v=><span style={{color:C.success,fontWeight:700}}>{fmtEur(v)}</span> },
     { key:'unit',      label:'Unit' },
     { key:'description',label:'Description',render:v=>v?<span style={{color:C.muted,fontSize:10}}>{v.slice(0,50)}{v.length>50?'…':''}</span>:'–' },
   ];
@@ -422,7 +422,7 @@ function Settings({ responsibles, setResponsibles, products, setProducts }) {
           <Field label="Name" span={2}><Inp value={pForm.name} onChange={e=>setPForm({...pForm,name:e.target.value})} placeholder="e.g. ENDURANCE 100 kWh" /></Field>
           <Field label="Category"><Sel value={pForm.category} onChange={e=>setPForm({...pForm,category:e.target.value})}><option value="">–</option>{PRODUCT_CATS.map(c=><option key={c}>{c}</option>)}</Sel></Field>
           <Field label="Unit"><Inp value={pForm.unit} onChange={e=>setPForm({...pForm,unit:e.target.value})} placeholder="e.g. kWh, unit, ora" /></Field>
-          <Field label="List Price (€)"><Inp type="number" value={pForm.listPrice} onChange={e=>setPForm({...pForm,listPrice:+e.target.value})} /></Field>
+          <Field label="List Price (€)"><Inp type="number" value={pForm.list_price} onChange={e=>setPForm({...pForm,list_price:+e.target.value})} /></Field>
           <Field label="Description" span={2}><Tx value={pForm.description} onChange={e=>setPForm({...pForm,description:e.target.value})} /></Field>
         </Modal>
       )}
@@ -676,7 +676,7 @@ function Opportunities({ data, setData, projects, responsibles, products }) {
           <Field label="Product / Scope">
             <Sel value={form.scope} onChange={e=>{
               const prod=products.find(p=>p.name===e.target.value);
-              setForm({...form,scope:e.target.value,unitPrice:prod?prod.listPrice:form.unitPrice,amount:(prod?prod.listPrice:form.unitPrice)*(form.qty||1)});
+              setForm({...form,scope:e.target.value,unitPrice:prod?prod.list_price:form.unitPrice,amount:(prod?prod.list_price:form.unitPrice)*(form.qty||1)});
             }}>
               <option value="">–</option>{scopeOpts.map(s=><option key={s}>{s}</option>)}
             </Sel>
