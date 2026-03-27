@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, CartesianGrid } from "recharts";
 import { supabase } from "./supabase.js";
 import Login from "./Login.jsx";
+import * as XLSX from 'xlsx';
 
 // ─── STATIC CONSTANTS ────────────────────────────────────────────────────────
 const STAGES = [
@@ -783,6 +784,18 @@ export default function App() {
     loadAll();
   },[user]);
 
+const exportToExcel = () => {
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(companies),     'Companies');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(projects),      'Projects');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(opportunities), 'Opportunities');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(leads),         'Leads');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(partners),      'Partners');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(responsibles),  'Responsibles');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(products),      'Products');
+  XLSX.writeFile(wb, `IngeniumCRM_backup_${new Date().toISOString().slice(0,10)}.xlsx`);
+};
+
   const needsSetup = responsibles.length===0||products.length===0;
   const pageLabel  = NAV.find(n=>n.id===page)?.label||'';
 
@@ -829,6 +842,7 @@ export default function App() {
           <span style={{ fontSize:18, fontWeight:700, fontFamily:"'Rajdhani',sans-serif", letterSpacing:1 }}>{pageLabel}</span>
           <span style={{ fontSize:9, textTransform:'uppercase', letterSpacing:1, padding:'3px 8px', background:C.accentDim, color:C.accent, borderRadius:4 }}>Ingenium CRM</span>
           <span style={{ fontSize:9, color:C.muted, marginLeft:'auto' }}>{user.email}</span>
+          <Btn onClick={exportToExcel} variant="secondary" style={{ fontSize:9, padding:'4px 10px' }}>⬇ Export Excel</Btn>
           {needsSetup&&page!=='settings'&&(
             <span onClick={()=>setPage('settings')} style={{ fontSize:9, padding:'3px 10px', background:C.warning+'22', color:C.warning, borderRadius:4, cursor:'pointer', border:`1px solid ${C.warning}44` }}>
               ⚠ Configure Responsibles & Products in Settings first
