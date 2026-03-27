@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, CartesianGrid } from "recharts";
 import { supabase } from "./supabase.js";
-import Login from './Login.jsx';
+import Login from "./Login.jsx";
 
 // ─── STATIC CONSTANTS ────────────────────────────────────────────────────────
 const STAGES = [
@@ -234,7 +234,6 @@ function Dashboard({ companies, projects, opportunities }) {
       <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12, marginBottom:18 }}>
         {kpis2.map(k=><KpiCard key={k.label} {...k} />)}
       </div>
-
       <div style={{ display:'grid', gridTemplateColumns:'2fr 1fr', gap:14, marginBottom:14 }}>
         <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:10, padding:20 }}>
           <div style={{ fontSize:12, fontWeight:600, marginBottom:14, color:C.muted }}>Pipeline by Stage (K€)</div>
@@ -270,7 +269,6 @@ function Dashboard({ companies, projects, opportunities }) {
           ):empty}
         </div>
       </div>
-
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:14, marginBottom:14 }}>
         <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:10, padding:20 }}>
           <div style={{ fontSize:12, fontWeight:600, marginBottom:14, color:C.muted }}>Amount / Responsible (K€)</div>
@@ -285,7 +283,6 @@ function Dashboard({ companies, projects, opportunities }) {
             </ResponsiveContainer>
           ):empty}
         </div>
-
         <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:10, padding:20 }}>
           <div style={{ fontSize:12, fontWeight:600, marginBottom:14, color:C.muted }}>Probability Distribution</div>
           {opportunities.length>0?(
@@ -299,7 +296,6 @@ function Dashboard({ companies, projects, opportunities }) {
             </ResponsiveContainer>
           ):empty}
         </div>
-
         <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:10, padding:20 }}>
           <div style={{ fontSize:12, fontWeight:600, marginBottom:12, color:C.muted }}>Sales Funnel</div>
           {opportunities.length>0?(
@@ -323,7 +319,6 @@ function Dashboard({ companies, projects, opportunities }) {
           ):empty}
         </div>
       </div>
-
       <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:10, padding:20 }}>
         <div style={{ fontSize:12, fontWeight:600, marginBottom:14, color:C.muted }}>Monthly Opportunities Trend (K€)</div>
         {monthlyData.length>0?(
@@ -352,36 +347,20 @@ function Settings({ responsibles, setResponsibles, products, setProducts }) {
   const [pForm, setPForm]  = useState(blankP);
 
   const saveR = async () => {
-    if(rForm.id) {
-      const updated = await dbUpdate('responsibles', rForm);
-      if(updated) setResponsibles(d=>d.map(x=>x.id===rForm.id?updated:x));
-    } else {
-      const created = await dbInsert('responsibles', rForm);
-      if(created) setResponsibles(d=>[...d, created]);
-    }
+    if(rForm.id){const u=await dbUpdate('responsibles',rForm);if(u)setResponsibles(d=>d.map(x=>x.id===rForm.id?u:x));}
+    else{const c=await dbInsert('responsibles',rForm);if(c)setResponsibles(d=>[...d,c]);}
     setRModal(false);
   };
   const openR = row => { setRForm(row||blankR); setRModal(true); };
-  const deleteR = async id => {
-    await dbDelete('responsibles', id);
-    setResponsibles(d=>d.filter(x=>x.id!==id));
-  };
+  const deleteR = async id => { await dbDelete('responsibles',id); setResponsibles(d=>d.filter(x=>x.id!==id)); };
 
   const saveP = async () => {
-    if(pForm.id) {
-      const updated = await dbUpdate('products', pForm);
-      if(updated) setProducts(d=>d.map(x=>x.id===pForm.id?updated:x));
-    } else {
-      const created = await dbInsert('products', pForm);
-      if(created) setProducts(d=>[...d, created]);
-    }
+    if(pForm.id){const u=await dbUpdate('products',pForm);if(u)setProducts(d=>d.map(x=>x.id===pForm.id?u:x));}
+    else{const c=await dbInsert('products',pForm);if(c)setProducts(d=>[...d,c]);}
     setPModal(false);
   };
   const openP = row => { setPForm(row||blankP); setPModal(true); };
-  const deleteP = async id => {
-    await dbDelete('products', id);
-    setProducts(d=>d.filter(x=>x.id!==id));
-  };
+  const deleteP = async id => { await dbDelete('products',id); setProducts(d=>d.filter(x=>x.id!==id)); };
 
   const rCols = [
     { key:'name',  label:'Full Name',  render:v=><b style={{color:C.accent}}>{v}</b> },
@@ -443,10 +422,10 @@ function Companies({ data, setData }) {
   };
   const del=async id=>{await dbDelete('companies',id);setData(d=>d.filter(x=>x.id!==id));};
   const cols=[
-    {key:'name',    label:'Company Name',render:v=><b style={{color:C.text}}>{v}</b>},
-    {key:'cls',     label:'Class',       render:v=>v?<Badge label={v} color={C.blue}/>:'–'},
+    {key:'name',label:'Company Name',render:v=><b style={{color:C.text}}>{v}</b>},
+    {key:'cls',label:'Class',render:v=>v?<Badge label={v} color={C.blue}/>:'–'},
     {key:'province',label:'Province'},{key:'region',label:'Region'},
-    {key:'tel',     label:'Tel'},{key:'email',label:'Email'},
+    {key:'tel',label:'Tel'},{key:'email',label:'Email'},
     {key:'comments',label:'Notes',render:v=>v?<span style={{color:C.muted,fontSize:11}}>{v.slice(0,40)}{v.length>40?'…':''}</span>:'–'},
   ];
   return(
@@ -629,7 +608,6 @@ function Opportunities({ data, setData, projects, responsibles, products }) {
         </div>
         <Btn onClick={()=>open(null)}>+ New Opportunity</Btn>
       </div>
-
       {view==='kanban'?(
         <div style={{ display:'flex', gap:12, overflowX:'auto', paddingBottom:8 }}>
           {STAGES.map(s=>(
@@ -658,7 +636,6 @@ function Opportunities({ data, setData, projects, responsibles, products }) {
           <DataTable cols={cols} rows={data} onEdit={open} onDelete={del} />
         </Section>
       )}
-
       {modal&&(
         <Modal title={modal==='new'?'New Opportunity':'Edit Opportunity'} onClose={()=>setModal(null)} onSave={save}>
           <Field label="Stage"><Sel value={form.stage} onChange={e=>setForm({...form,stage:e.target.value})}>{STAGES.map(s=><option key={s.id} value={s.id}>{s.icon} {s.label}</option>)}</Sel></Field>
@@ -764,20 +741,9 @@ function LOP({ projects, opportunities }) {
 
 // ─── APP ──────────────────────────────────────────────────────────────────────
 export default function App() {
-  const [user, setUser] = useState(null);
-  const [page, setPage] = useState('dashboard');
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) setUser(data.session.user);
-    });
-    const { data: listener } = supabase.auth.onAuthStateChange((_e, session) => {
-      setUser(session?.user ?? null);
-    });
-    return () => listener.subscription.unsubscribe();
-  }, []);
-
-  if (!user) return <Login onLogin={setUser} />;
+  const [user,          setUser]          = useState(null);
+  const [authLoading,   setAuthLoading]   = useState(true);
+  const [page,          setPage]          = useState('dashboard');
   const [companies,     setCompanies]     = useState([]);
   const [partners,      setPartners]      = useState([]);
   const [leads,         setLeads]         = useState([]);
@@ -785,9 +751,24 @@ export default function App() {
   const [opportunities, setOpportunities] = useState([]);
   const [responsibles,  setResponsibles]  = useState([]);
   const [products,      setProducts]      = useState([]);
-  const [loading,       setLoading]       = useState(true);
+  const [dataLoading,   setDataLoading]   = useState(false);
 
+  // ── Auth ──
   useEffect(()=>{
+    supabase.auth.getSession().then(({ data })=>{
+      setUser(data.session?.user ?? null);
+      setAuthLoading(false);
+    });
+    const { data: listener } = supabase.auth.onAuthStateChange((_e, session)=>{
+      setUser(session?.user ?? null);
+    });
+    return ()=>listener.subscription.unsubscribe();
+  },[]);
+
+  // ── Load data once user is logged in ──
+  useEffect(()=>{
+    if(!user) return;
+    setDataLoading(true);
     async function loadAll() {
       const [c,pa,l,pr,o,r,prod] = await Promise.all([
         dbLoad('companies'), dbLoad('partners'), dbLoad('leads'),
@@ -797,15 +778,23 @@ export default function App() {
       setCompanies(c); setPartners(pa); setLeads(l);
       setProjects(pr); setOpportunities(o);
       setResponsibles(r); setProducts(prod);
-      setLoading(false);
+      setDataLoading(false);
     }
     loadAll();
-  },[]);
+  },[user]);
 
   const needsSetup = responsibles.length===0||products.length===0;
   const pageLabel  = NAV.find(n=>n.id===page)?.label||'';
 
-  if(loading) return (
+  if(authLoading) return (
+    <div style={{ display:'flex', height:'100vh', alignItems:'center', justifyContent:'center', background:'#04101d', color:'#00e5b0', fontFamily:"'IBM Plex Mono',monospace", fontSize:14 }}>
+      Loading...
+    </div>
+  );
+
+  if(!user) return <Login onLogin={setUser} />;
+
+  if(dataLoading) return (
     <div style={{ display:'flex', height:'100vh', alignItems:'center', justifyContent:'center', background:'#04101d', color:'#00e5b0', fontFamily:"'IBM Plex Mono',monospace", fontSize:14 }}>
       Loading data...
     </div>
@@ -830,14 +819,16 @@ export default function App() {
             </div>
           ))}
         </nav>
-        <div style={{ padding:'14px 20px', borderTop:`1px solid ${C.border}`, fontSize:9, color:C.muted }}>
-          v3.0 · {new Date().toLocaleDateString('it-IT')}
+        <div style={{ padding:'14px 20px', borderTop:`1px solid ${C.border}`, fontSize:9, color:C.muted, display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+          <span>v3.0 · {new Date().toLocaleDateString('it-IT')}</span>
+          <button onClick={()=>supabase.auth.signOut()} style={{ background:'none', border:'none', color:C.muted, cursor:'pointer', fontSize:9, textDecoration:'underline' }}>Logout</button>
         </div>
       </div>
       <div style={{ flex:1, display:'flex', flexDirection:'column', overflow:'hidden' }}>
         <div style={{ padding:'16px 28px', borderBottom:`1px solid ${C.border}`, background:C.surface, display:'flex', alignItems:'center', gap:12, flexWrap:'wrap' }}>
           <span style={{ fontSize:18, fontWeight:700, fontFamily:"'Rajdhani',sans-serif", letterSpacing:1 }}>{pageLabel}</span>
           <span style={{ fontSize:9, textTransform:'uppercase', letterSpacing:1, padding:'3px 8px', background:C.accentDim, color:C.accent, borderRadius:4 }}>Ingenium CRM</span>
+          <span style={{ fontSize:9, color:C.muted, marginLeft:'auto' }}>{user.email}</span>
           {needsSetup&&page!=='settings'&&(
             <span onClick={()=>setPage('settings')} style={{ fontSize:9, padding:'3px 10px', background:C.warning+'22', color:C.warning, borderRadius:4, cursor:'pointer', border:`1px solid ${C.warning}44` }}>
               ⚠ Configure Responsibles & Products in Settings first
