@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, CartesianGrid } from "recharts";
 import { supabase } from "./supabase.js";
+import Login from './Login.jsx';
 
 // ─── STATIC CONSTANTS ────────────────────────────────────────────────────────
 const STAGES = [
@@ -763,7 +764,20 @@ function LOP({ projects, opportunities }) {
 
 // ─── APP ──────────────────────────────────────────────────────────────────────
 export default function App() {
-  const [page,          setPage]          = useState('dashboard');
+  const [user, setUser] = useState(null);
+  const [page, setPage] = useState('dashboard');
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) setUser(data.session.user);
+    });
+    const { data: listener } = supabase.auth.onAuthStateChange((_e, session) => {
+      setUser(session?.user ?? null);
+    });
+    return () => listener.subscription.unsubscribe();
+  }, []);
+
+  if (!user) return <Login onLogin={setUser} />;
   const [companies,     setCompanies]     = useState([]);
   const [partners,      setPartners]      = useState([]);
   const [leads,         setLeads]         = useState([]);
