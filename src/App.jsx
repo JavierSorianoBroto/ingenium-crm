@@ -24,7 +24,6 @@ const PROBS        = [0.05,0.25,0.5,0.75,0.9];
 const PRODUCT_CATS = ['Product','Service','Software','Hardware','Consulting','Maintenance'];
 
 // ─── COLORS ───────────────────────────────────────────────────────────────────
-// ─── COLORS ───────────────────────────────────────────────────────────────────
 const DARK = {
   bg:'#04101d', surface:'#081a2e', card:'#0c2240', border:'#153352',
   accent:'#00e5b0', accentDim:'rgba(0,229,176,.12)', blue:'#1d8cf8',
@@ -37,11 +36,8 @@ const LIGHT_COLORS = {
   text:'#1a202c', muted:'#718096', danger:'#e53e3e', success:'#38a169',
   warning:'#d69e2e', orange:'#dd6b20', purple:'#805ad5',
 };
-
-// Theme store — updated before each render
-const themeStore = { current: 'dark' };
-const C = new Proxy({}, { get: (_, k) => (themeStore.current === 'dark' ? DARK : LIGHT_COLORS)[k] });
-const inp = new Proxy({}, { get: (_, k) => ({ width:'100%', background:C.surface, border:`1px solid ${C.border}`, color:C.text, padding:'8px 12px', borderRadius:6, fontSize:12, fontFamily:"'IBM Plex Mono',monospace", boxSizing:'border-box', outline:'none' })[k] });
+const C = DARK;
+const inp = { width:'100%', background:C.surface, border:`1px solid ${C.border}`, color:C.text, padding:'8px 12px', borderRadius:6, fontSize:12, fontFamily:"'IBM Plex Mono',monospace", boxSizing:'border-box', outline:'none' };
 
 // ─── SUPABASE HELPERS ─────────────────────────────────────────────────────────
 async function dbLoad(table) {
@@ -764,7 +760,7 @@ function LOP({ projects, opportunities, C }) {
 // ─── APP ──────────────────────────────────────────────────────────────────────
 export default function App() {
   const [theme, setTheme] = useState(() => localStorage.getItem('crm-theme') || 'dark');
-  const colors = theme === 'dark' ? DARK : LIGHT_COLORS; themeStore.current = theme;
+  const T = theme === 'dark' ? DARK : LIGHT_COLORS;
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [page, setPage] = useState('dashboard');
@@ -836,61 +832,57 @@ const exportToExcel = () => {
     </div>
   );
 
-  return (
-    <div style={{ display:'flex', height:'100vh', background:colors.bg, color:colors.text, fontFamily:"'IBM Plex Mono',monospace", overflow:'hidden' }}>
-      <style>{`
-        :root { --bg: ${colors.bg}; --surface: ${colors.surface}; --card: ${colors.card}; --border: ${colors.border}; --accent: ${colors.accent}; --text: ${colors.text}; --muted: ${colors.muted}; }
-        body { background: ${colors.bg}; }
-      `}</style>
+return (
+    <div style={{ display:'flex', height:'100vh', background:T.bg, color:T.text, fontFamily:"'IBM Plex Mono',monospace", overflow:'hidden' }}>
       <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-      <div style={{ width:210, background:C.surface, borderRight:`1px solid ${C.border}`, display:'flex', flexDirection:'column', flexShrink:0 }}>
-        <div style={{ padding:'22px 20px 16px', borderBottom:`1px solid ${C.border}` }}>
-          <div style={{ color:C.accent, fontSize:13, fontWeight:700, fontFamily:"'Rajdhani',sans-serif", letterSpacing:3, textTransform:'uppercase' }}>INGENIUM</div>
-          <div style={{ color:C.muted, fontSize:9, marginTop:2, letterSpacing:1 }}>Power Solution Tech · CRM</div>
+      <div style={{ width:210, background:T.surface, borderRight:`1px solid ${T.border}`, display:'flex', flexDirection:'column', flexShrink:0 }}>
+        <div style={{ padding:'22px 20px 16px', borderBottom:`1px solid ${T.border}` }}>
+          <div style={{ color:T.accent, fontSize:13, fontWeight:700, fontFamily:"'Rajdhani',sans-serif", letterSpacing:3, textTransform:'uppercase' }}>INGENIUM</div>
+          <div style={{ color:T.muted, fontSize:9, marginTop:2, letterSpacing:1 }}>Power Solution Tech · CRM</div>
         </div>
         <nav style={{ flex:1, padding:'10px 0', overflowY:'auto' }}>
           {NAV.map(n=>(
-            <div key={n.id} onClick={()=>setPage(n.id)} style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 20px', cursor:'pointer', fontSize:11, color:page===n.id?C.accent:C.muted, background:page===n.id?C.accentDim:'transparent', borderLeft:page===n.id?`2px solid ${C.accent}`:'2px solid transparent', transition:'all .15s' }}>
+            <div key={n.id} onClick={()=>setPage(n.id)} style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 20px', cursor:'pointer', fontSize:11, color:page===n.id?T.accent:T.muted, background:page===n.id?T.accentDim:'transparent', borderLeft:page===n.id?`2px solid ${T.accent}`:'2px solid transparent', transition:'all .15s' }}>
               <span style={{ fontSize:14 }}>{n.icon}</span>
               {n.label}
               {n.id==='settings'&&needsSetup&&(
-                <span style={{ marginLeft:'auto', width:7, height:7, borderRadius:'50%', background:C.warning, flexShrink:0 }} />
+                <span style={{ marginLeft:'auto', width:7, height:7, borderRadius:'50%', background:T.warning, flexShrink:0 }} />
               )}
             </div>
           ))}
         </nav>
-        <div style={{ padding:'14px 20px', borderTop:`1px solid ${C.border}`, fontSize:9, color:C.muted, display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+        <div style={{ padding:'14px 20px', borderTop:`1px solid ${T.border}`, fontSize:9, color:T.muted, display:'flex', justifyContent:'space-between', alignItems:'center' }}>
           <span>v3.0 · {new Date().toLocaleDateString('it-IT')}</span>
-          <button onClick={()=>supabase.auth.signOut()} style={{ background:'none', border:'none', color:C.muted, cursor:'pointer', fontSize:9, textDecoration:'underline' }}>Logout</button>
+          <button onClick={()=>supabase.auth.signOut()} style={{ background:'none', border:'none', color:T.muted, cursor:'pointer', fontSize:9, textDecoration:'underline' }}>Logout</button>
         </div>
       </div>
       <div style={{ flex:1, display:'flex', flexDirection:'column', overflow:'hidden' }}>
-        <div style={{ padding:'16px 28px', borderBottom:`1px solid ${C.border}`, background:C.surface, display:'flex', alignItems:'center', gap:12, flexWrap:'wrap' }}>
+        <div style={{ padding:'16px 28px', borderBottom:`1px solid ${T.border}`, background:T.surface, display:'flex', alignItems:'center', gap:12, flexWrap:'wrap' }}>
           <span style={{ fontSize:18, fontWeight:700, fontFamily:"'Rajdhani',sans-serif", letterSpacing:1 }}>{pageLabel}</span>
-          <span style={{ fontSize:9, textTransform:'uppercase', letterSpacing:1, padding:'3px 8px', background:C.accentDim, color:C.accent, borderRadius:4 }}>Ingenium CRM</span>
-          <span style={{ fontSize:9, color:C.muted, marginLeft:'auto' }}>{user.email}</span>
-            <button
+          <span style={{ fontSize:9, textTransform:'uppercase', letterSpacing:1, padding:'3px 8px', background:T.accentDim, color:T.accent, borderRadius:4 }}>Ingenium CRM</span>
+          <span style={{ fontSize:9, color:T.muted, marginLeft:'auto' }}>{user.email}</span>
+          <button
             onClick={() => { const t = theme === 'dark' ? 'light' : 'dark'; setTheme(t); localStorage.setItem('crm-theme', t); }}
-            style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:6, padding:'5px 10px', cursor:'pointer', fontSize:13, color:C.text }}
-            >
+            style={{ background:T.card, border:`1px solid ${T.border}`, borderRadius:6, padding:'5px 10px', cursor:'pointer', fontSize:13, color:T.text }}
+          >
             {theme === 'dark' ? '☀️' : '🌙'}
           </button>
           <Btn onClick={exportToExcel} variant="secondary" style={{ fontSize:9, padding:'4px 10px' }}>⬇ Export Excel</Btn>
           {needsSetup&&page!=='settings'&&(
-            <span onClick={()=>setPage('settings')} style={{ fontSize:9, padding:'3px 10px', background:C.warning+'22', color:C.warning, borderRadius:4, cursor:'pointer', border:`1px solid ${C.warning}44` }}>
+            <span onClick={()=>setPage('settings')} style={{ fontSize:9, padding:'3px 10px', background:T.warning+'22', color:T.warning, borderRadius:4, cursor:'pointer', border:`1px solid ${T.warning}44` }}>
               ⚠ Configure Responsibles & Products in Settings first
             </span>
           )}
         </div>
-        <div style={{ flex:1, overflowY:'auto', padding:24 }}>
-          {page==='dashboard'     && <Dashboard companies={companies} projects={projects} opportunities={opportunities} />}
-          {page==='projects'      && <Projects data={projects} setData={setProjects} companies={companies} responsibles={responsibles} />}
-          {page==='opportunities' && <Opportunities data={opportunities} setData={setOpportunities} projects={projects} responsibles={responsibles} products={products} />}
-          {page==='lop'           && <LOP projects={projects} opportunities={opportunities} />}
-          {page==='companies'     && <Companies data={companies} setData={setCompanies} />}
-          {page==='leads'         && <Leads data={leads} setData={setLeads} />}
-          {page==='partners'      && <Partners data={partners} setData={setPartners} />}
-          {page==='settings'      && <Settings responsibles={responsibles} setResponsibles={setResponsibles} products={products} setProducts={setProducts} />}
+        <div style={{ flex:1, overflowY:'auto', padding:24, background:T.bg }}>
+          {page==='dashboard'     && <Dashboard companies={companies} projects={projects} opportunities={opportunities} C={T} />}
+          {page==='projects'      && <Projects data={projects} setData={setProjects} companies={companies} responsibles={responsibles} C={T} />}
+          {page==='opportunities' && <Opportunities data={opportunities} setData={setOpportunities} projects={projects} responsibles={responsibles} products={products} C={T} />}
+          {page==='lop'           && <LOP projects={projects} opportunities={opportunities} C={T} />}
+          {page==='companies'     && <Companies data={companies} setData={setCompanies} C={T} />}
+          {page==='leads'         && <Leads data={leads} setData={setLeads} C={T} />}
+          {page==='partners'      && <Partners data={partners} setData={setPartners} C={T} />}
+          {page==='settings'      && <Settings responsibles={responsibles} setResponsibles={setResponsibles} products={products} setProducts={setProducts} C={T} />}
         </div>
       </div>
     </div>
