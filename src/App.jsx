@@ -3,7 +3,6 @@ import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveCo
 import { supabase } from "./supabase.js";
 import Login from "./Login.jsx";
 import * as XLSX from 'xlsx';
-import ingeniumpng from './assets/ingenium.png';
 
 
 // ─── STATIC CONSTANTS ────────────────────────────────────────────────────────
@@ -845,13 +844,18 @@ return (
       <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
       <div style={{ width:210, background:T.surface, borderRight:`1px solid ${T.border}`, display:'flex', flexDirection:'column', flexShrink:0 }}>
         <div style={{ padding:'22px 20px 16px', borderBottom:`1px solid ${T.border}` }}>
-          <img 
-            src={ingeniumpng} 
-            alt="Ingenium" 
-            style={{ height:36, width:'auto', display:'block', marginBottom:6, background:'red', minWidth:100 }}
-            onError={(e) => console.error('Logo failed to load:', e)}
-          />
-          <div style={{ color:T.muted, fontSize:9, marginTop:2, letterSpacing:1 }}>Power Solution Tech · CRM</div>
+        <img 
+  src="/ingenium.png"
+  alt="Ingenium" 
+  style={{ 
+    height:36, 
+    width:'auto', 
+    display:'block', 
+    marginBottom:6,
+    filter: theme === 'dark' ? 'brightness(0) invert(1)' : 'none'
+  }} 
+/>
+        <div style={{ color:T.muted, fontSize:9, marginTop:2, letterSpacing:1 }}>Power Solution Tech · CRM</div>
         </div>
 
         <nav style={{ flex:1, padding:'10px 0', overflowY:'auto' }}>
