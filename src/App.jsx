@@ -432,10 +432,13 @@ function Companies({ data, setData }) {
   ];
   return(
     <>
-      <Section title={`Companies (${data.length})`} action={<Btn onClick={()=>open(null)}>+ New Company</Btn>}>
-  <input style={{...inp, marginBottom:12, width:300}} placeholder="🔍 Search by name, province, email..." value={search} onChange={e=>setSearch(e.target.value)} />
+      <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12}}>
+  <input style={{...inp, width:300}} placeholder="🔍 Search by name, province, email..." value={search} onChange={e=>setSearch(e.target.value)} />
+  <Btn onClick={()=>open(null)}>+ New Company</Btn>
+</div>
+<Section title={`Companies (${data.length})`}>
   <DataTable cols={cols} rows={data.filter(r=>!search||JSON.stringify(r).toLowerCase().includes(search.toLowerCase()))} onEdit={open} onDelete={del} />
-      </Section>
+</Section>
       {modal&&(<Modal title={modal==='new'?'New Company':'Edit Company'} onClose={()=>setModal(null)} onSave={save}>
         <Field label="Company Name" span={2}><Inp value={form.name} onChange={e=>setForm({...form,name:e.target.value})} /></Field>
         <Field label="Class"><Sel value={form.cls} onChange={e=>setForm({...form,cls:e.target.value})}><option value="">–</option>{CLASS_CO.map(c=><option key={c}>{c}</option>)}</Sel></Field>
@@ -549,10 +552,13 @@ function Projects({ data, setData, companies, responsibles }) {
   ];
   return(
     <>
-      <Section title={`Projects (${data.length})`} action={<Btn onClick={()=>open(null)}>+ New Project</Btn>}>
-  <input style={{...inp, marginBottom:12, width:300}} placeholder="🔍 Search by name, company, municipality..." value={search} onChange={e=>setSearch(e.target.value)} />
+      <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12}}>
+  <input style={{...inp, width:300}} placeholder="🔍 Search by name, company, municipality..." value={search} onChange={e=>setSearch(e.target.value)} />
+  <Btn onClick={()=>open(null)}>+ New Project</Btn>
+</div>
+<Section title={`Projects (${data.length})`}>
   <DataTable cols={cols} rows={data.filter(r=>!search||JSON.stringify(r).toLowerCase().includes(search.toLowerCase()))} onEdit={open} onDelete={del} />
-      </Section>
+</Section>
       {modal&&(<Modal title={modal==='new'?'New Project':'Edit Project'} onClose={()=>setModal(null)} onSave={save}>
         <Field label="Responsible">
           <Sel value={form.responsible} onChange={e=>setForm({...form,responsible:e.target.value})}>
@@ -638,10 +644,14 @@ const [search,setSearch]=useState('');
           ))}
         </div>
       ):(
-        <Section title={`All Opportunities (${data.length})`}>
-  <input style={{...inp, marginBottom:12, width:300}} placeholder="🔍 Search by name, stage, product..." value={search} onChange={e=>setSearch(e.target.value)} />
+        <>
+        <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12}}>
+  <input style={{...inp, width:300}} placeholder="🔍 Search by name, stage, product..." value={search} onChange={e=>setSearch(e.target.value)} />
+</div>
+<Section title={`All Opportunities (${data.length})`}>
   <DataTable cols={cols} rows={data.filter(r=>!search||JSON.stringify(r).toLowerCase().includes(search.toLowerCase()))} onEdit={open} onDelete={del} />
-        </Section>
+</Section>
+</>
       )}
       {modal&&(
         <Modal title={modal==='new'?'New Opportunity':'Edit Opportunity'} onClose={()=>setModal(null)} onSave={save}>
