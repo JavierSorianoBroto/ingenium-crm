@@ -1,12 +1,6 @@
-import nodemailer from 'nodemailer';
+import sgMail from '@sendgrid/mail';
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD,
-  },
-});
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -15,14 +9,19 @@ export default async function handler(req, res) {
 
   const { email, message } = req.body;
 
-  if (!email || !process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
-    return res.status(400).json({ error: 'Missing required fields' });
+  if (!email) {
+    return res.status(400).json({ error: 'Missing email address' });
+  }
+
+  if (!process.env.SENDGRID_API_KEY) {
+    console.error('SENDGRID_API_KEY is undefined');
+    return res.status(500).json({ error: 'SendGrid API key not configured. Contact admin.' });
   }
 
   try {
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
+    await sgMail.send({
       to: email,
+      from: 'noreply@ingeniumcrm.com',
       subject: '📧 Ingenium CRM - Test Email',
       html: `
         <div style="font-family: Arial; max-width: 600px; margin: 0 auto;">
