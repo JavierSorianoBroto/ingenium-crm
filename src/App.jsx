@@ -37,14 +37,11 @@ const LIGHT_COLORS = {
   text:'#1a202c', muted:'#718096', danger:'#e53e3e', success:'#38a169',
   warning:'#d69e2e', orange:'#dd6b20', purple:'#805ad5',
 };
-const C = DARK;
-const inp = { width:'100%', background:C.surface, border:`1px solid ${C.border}`, color:C.text, padding:'8px 12px', borderRadius:6, fontSize:12, fontFamily:"'IBM Plex Mono',monospace", boxSizing:'border-box', outline:'none' };
-const stageMap      = Object.fromEntries(STAGES.map(s=>[s.id,s]));
-const priorityColor = p => ({Urgent:C.danger,Hurry:C.orange,Standard:C.blue,Low:C.muted,'Very Low':C.muted,'N/A':C.muted})[p]||C.muted;
-const fmtK   = n => n ? `€${(n/1000).toFixed(1)}K` : '€0';
-const fmtEur = n => n ? `€${Number(n).toLocaleString('it-IT')}` : '€0';
-const daysSince = d => { if(!d) return '–'; return Math.floor((Date.now()-new Date(d))/86400000); };
-const CHART_COLORS = ['#60a5fa','#a78bfa','#fb923c','#fbbf24','#34d399','#f87171','#00e5b0','#1d8cf8'];
+
+// Theme store — updated before each render
+const themeStore = { current: 'dark' };
+const C = new Proxy({}, { get: (_, k) => (themeStore.current === 'dark' ? DARK : LIGHT_COLORS)[k] });
+const inp = new Proxy({}, { get: (_, k) => ({ width:'100%', background:C.surface, border:`1px solid ${C.border}`, color:C.text, padding:'8px 12px', borderRadius:6, fontSize:12, fontFamily:"'IBM Plex Mono',monospace", boxSizing:'border-box', outline:'none' })[k] });
 
 // ─── SUPABASE HELPERS ─────────────────────────────────────────────────────────
 async function dbLoad(table) {
@@ -166,7 +163,7 @@ function KpiCard({ label, value, sub, color, icon }) {
 }
 
 // ─── DASHBOARD ───────────────────────────────────────────────────────────────
-function Dashboard({ companies, projects, opportunities }) {
+function Dashboard({ companies, projects, opportunities, C }) {
   const total      = opportunities.reduce((a,b)=>a+(b.amount||0),0);
   const weighted   = opportunities.reduce((a,b)=>a+(b.amount||0)*(b.probability||0),0);
   const secured    = opportunities.filter(o=>o.stage==='SECURED');
@@ -347,7 +344,7 @@ function Dashboard({ companies, projects, opportunities }) {
 }
 
 // ─── SETTINGS ────────────────────────────────────────────────────────────────
-function Settings({ responsibles, setResponsibles, products, setProducts }) {
+function Settings({ responsibles, setResponsibles, products, setProducts, C }) {
   const blankR = { name:'', role:'', email:'', tel:'' };
   const blankP = { name:'', category:'', listPrice:0, unit:'', description:'' };
   const [rModal,setRModal] = useState(false);
@@ -420,7 +417,7 @@ function Settings({ responsibles, setResponsibles, products, setProducts }) {
 }
 
 // ─── COMPANIES ────────────────────────────────────────────────────────────────
-function Companies({ data, setData }) {
+function Companies({ data, setData, C }) {
   const blank={name:'',cls:'',province:'',region:'',tel:'',email:'',address:'',comments:'',date:new Date().toISOString().slice(0,10)};
   const [modal,setModal]=useState(null);const [form,setForm]=useState(blank);
   const [search,setSearch]=useState('');
@@ -462,7 +459,7 @@ function Companies({ data, setData }) {
 }
 
 // ─── LEADS ────────────────────────────────────────────────────────────────────
-function Leads({ data, setData }) {
+function Leads({ data, setData, C }) {
   const blank={surname:'',name:'',role:'',company:'',province:'',region:'',tel:'',email:'',address:'',comments:'',date:new Date().toISOString().slice(0,10)};
   const [modal,setModal]=useState(null);const [form,setForm]=useState(blank);
   const open=row=>{setForm(row||blank);setModal(row?'edit':'new');};
@@ -500,7 +497,7 @@ function Leads({ data, setData }) {
 }
 
 // ─── PARTNERS ─────────────────────────────────────────────────────────────────
-function Partners({ data, setData }) {
+function Partners({ data, setData, C }) {
   const blank={surname:'',name:'',kind:'',tel:'',email:'',company:'',region:'',address:'',comments:''};
   const [modal,setModal]=useState(null);const [form,setForm]=useState(blank);
   const open=row=>{setForm(row||blank);setModal(row?'edit':'new');};
@@ -537,7 +534,7 @@ function Partners({ data, setData }) {
 }
 
 // ─── PROJECTS ─────────────────────────────────────────────────────────────────
-function Projects({ data, setData, companies, responsibles }) {
+function Projects({ data, setData, companies, responsibles, C }) {
   const blank={responsible:'',name:'',municipality:'',province:'',partner:'',partnerFee:0,contact:'',company:'',kind:'Sales',firstContact:'',lastContact:'',followUp:''};
   const [modal,setModal]=useState(null);const [form,setForm]=useState(blank);
   const [search,setSearch]=useState('');
@@ -590,7 +587,7 @@ function Projects({ data, setData, companies, responsibles }) {
 }
 
 // ─── OPPORTUNITIES ────────────────────────────────────────────────────────────
-function Opportunities({ data, setData, projects, responsibles, products }) {
+function Opportunities({ data, setData, projects, responsibles, products, C }) {
   const blank={projectId:'',responsible:'',projectName:'',opptyName:'',opportunity:'',scope:'',unitPrice:0,qty:1,amount:0,probability:0.05,stage:'NEW_OPPORTUNITY',priority:'Standard',actions:'',comments:'',inserted:'',offerDate:'',offerNum:''};
   const [modal,setModal]=useState(null);const [form,setForm]=useState(blank);
   const [view,setView]=useState('kanban');
@@ -701,7 +698,7 @@ const [search,setSearch]=useState('');
 }
 
 // ─── LOP ──────────────────────────────────────────────────────────────────────
-function LOP({ projects, opportunities }) {
+function LOP({ projects, opportunities, C }) {
   const rows=useMemo(()=>projects.map(p=>({
     ...p,
     opps:opportunities.filter(o=>o.projectId===p.id),
@@ -767,7 +764,7 @@ function LOP({ projects, opportunities }) {
 // ─── APP ──────────────────────────────────────────────────────────────────────
 export default function App() {
   const [theme, setTheme] = useState(() => localStorage.getItem('crm-theme') || 'dark');
-  const colors = theme === 'dark' ? DARK : LIGHT_COLORS;
+  const colors = theme === 'dark' ? DARK : LIGHT_COLORS; themeStore.current = theme;
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [page, setPage] = useState('dashboard');
@@ -872,6 +869,12 @@ const exportToExcel = () => {
           <span style={{ fontSize:18, fontWeight:700, fontFamily:"'Rajdhani',sans-serif", letterSpacing:1 }}>{pageLabel}</span>
           <span style={{ fontSize:9, textTransform:'uppercase', letterSpacing:1, padding:'3px 8px', background:C.accentDim, color:C.accent, borderRadius:4 }}>Ingenium CRM</span>
           <span style={{ fontSize:9, color:C.muted, marginLeft:'auto' }}>{user.email}</span>
+            <button
+            onClick={() => { const t = theme === 'dark' ? 'light' : 'dark'; setTheme(t); localStorage.setItem('crm-theme', t); }}
+            style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:6, padding:'5px 10px', cursor:'pointer', fontSize:13, color:C.text }}
+            >
+            {theme === 'dark' ? '☀️' : '🌙'}
+          </button>
           <Btn onClick={exportToExcel} variant="secondary" style={{ fontSize:9, padding:'4px 10px' }}>⬇ Export Excel</Btn>
           {needsSetup&&page!=='settings'&&(
             <span onClick={()=>setPage('settings')} style={{ fontSize:9, padding:'3px 10px', background:C.warning+'22', color:C.warning, borderRadius:4, cursor:'pointer', border:`1px solid ${C.warning}44` }}>
