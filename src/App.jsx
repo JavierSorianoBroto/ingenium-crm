@@ -52,20 +52,7 @@ const LIGHT_COLORS = {
 };
 
 // module-level theme holder used by primitives that reference C
-let C = LIGHT_COLORS;
-
-const inp = (C) => ({ 
-  width:'100%', 
-  background:C.surface,
-  border:`1px solid ${C.border}`, 
-  color:C.text, 
-  padding:'9px 12px', 
-  borderRadius:8,
-  fontSize:12, 
-  fontFamily:"'IBM Plex Mono',monospace", 
-  boxSizing:'border-box', 
-  outline:'none' 
-});
+let C = DARK;
 
 const inp = (C) => ({ 
   width:'100%', 
@@ -808,7 +795,7 @@ function LOP({ projects, opportunities, C }) {
 export default function App() {
   const [theme, setTheme] = useState(() => localStorage.getItem('crm-theme') || 'dark');
   const T = theme === 'dark' ? DARK : LIGHT_COLORS;
-  
+  C = T;
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [page, setPage] = useState('dashboard');
