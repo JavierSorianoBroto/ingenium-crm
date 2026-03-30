@@ -51,6 +51,22 @@ const LIGHT_COLORS = {
   purple:'#7c3aed',
 };
 
+// module-level theme holder used by primitives that reference C
+let C = LIGHT_COLORS;
+
+const inp = (C) => ({ 
+  width:'100%', 
+  background:C.surface,
+  border:`1px solid ${C.border}`, 
+  color:C.text, 
+  padding:'9px 12px', 
+  borderRadius:8,
+  fontSize:12, 
+  fontFamily:"'IBM Plex Mono',monospace", 
+  boxSizing:'border-box', 
+  outline:'none' 
+});
+
 const inp = (C) => ({ 
   width:'100%', 
   background:C.surface,
@@ -116,8 +132,10 @@ const Field = ({ label, children, span=1 }) => (
     {children}
   </div>
 );
-const Inp = ({ C, ...props }) => <input style={inp(C)} {...props} />;
-const Sel = ({ C, children, ...p }) => <select style={{...inp(C),cursor:'pointer'}} {...p}>{children}</select>;const Tx  = ({ C, ...props }) => <textarea style={{...inp(C),minHeight:60,resize:'vertical'}} {...props} />;
+// merge theme styles with any passed inline style
+const Inp = (props) => <input {...props} style={{ ...inp(C), ...props.style }} />;
+const Sel = ({ children, ...p }) => <select {...p} style={{ ...inp(C), cursor:'pointer', ...p.style }}>{children}</select>;
+const Tx  = (props) => <textarea {...props} style={{ ...inp(C), minHeight:60, resize:'vertical', ...props.style }} />;
 
 // ─── MODAL ────────────────────────────────────────────────────────────────────
 function Modal({ title, onClose, onSave, children }) {
@@ -463,7 +481,7 @@ function Companies({ data, setData, C }) {
   return(
     <>
       <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12}}>
-  <input style={{...inp, width:300}} placeholder="🔍 Search by name, province, email..." value={search} onChange={e=>setSearch(e.target.value)} />
+  <input style={{...inp(C), width:300}} placeholder="🔍 Search by name, province, email..." value={search} onChange={e=>setSearch(e.target.value)} />
   <Btn onClick={()=>open(null)}>+ New Company</Btn>
 </div>
 <Section title={`Companies (${data.length})`}>
@@ -583,7 +601,7 @@ function Projects({ data, setData, companies, responsibles, C }) {
   return(
     <>
       <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12}}>
-  <input style={{...inp, width:300}} placeholder="🔍 Search by name, company, municipality..." value={search} onChange={e=>setSearch(e.target.value)} />
+  <input style={{...inp(C), width:300}} placeholder="🔍 Search by name, company, municipality..." value={search} onChange={e=>setSearch(e.target.value)} />
   <Btn onClick={()=>open(null)}>+ New Project</Btn>
 </div>
 <Section title={`Projects (${data.length})`}>
@@ -642,7 +660,7 @@ const [search,setSearch]=useState('');
 
   return(
     <>
-      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:14 }}>
+       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:14 }}>
         <div style={{ display:'flex', gap:8 }}>
           {['kanban','table'].map(v=>(
             <button key={v} onClick={()=>setView(v)} style={{ padding:'6px 14px', borderRadius:6, border:'none', cursor:'pointer', fontSize:11, fontFamily:"'IBM Plex Mono',monospace", background:view===v?C.accent:C.border, color:view===v?C.bg:C.text, fontWeight:600 }}>{v==='kanban'?'⬛ Kanban':'≡ Table'}</button>
