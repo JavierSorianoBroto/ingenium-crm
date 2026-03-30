@@ -50,10 +50,10 @@ const LIGHT_COLORS = {
   orange:'#ea580c',
   purple:'#7c3aed',
 };
-const C = LIGHT_COLORS;
-const inp = { 
+
+const inp = (C) => ({ 
   width:'100%', 
-  background:'#ffffff',
+  background:C.surface,
   border:`1px solid ${C.border}`, 
   color:C.text, 
   padding:'9px 12px', 
@@ -62,10 +62,9 @@ const inp = {
   fontFamily:"'IBM Plex Mono',monospace", 
   boxSizing:'border-box', 
   outline:'none' 
-};
+});
 const stageMap      = Object.fromEntries(STAGES.map(s=>[s.id,s]));
-const priorityColor = p => ({Urgent:C.danger,Hurry:C.orange,Standard:C.blue,Low:C.muted,'Very Low':C.muted,'N/A':C.muted})[p]||C.muted;
-const fmtK   = n => n ? `€${(n/1000).toFixed(1)}K` : '€0';
+const priorityColor = (p, C) => ({Urgent:C.danger,Hurry:C.orange,Standard:C.blue,Low:C.muted,'Very Low':C.muted,'N/A':C.muted})[p]||C.muted;const fmtK   = n => n ? `€${(n/1000).toFixed(1)}K` : '€0';
 const fmtEur = n => n ? `€${Number(n).toLocaleString('it-IT')}` : '€0';
 const daysSince = d => { if(!d) return '–'; return Math.floor((Date.now()-new Date(d))/86400000); };
 const CHART_COLORS = ['#60a5fa','#a78bfa','#fb923c','#fbbf24','#34d399','#f87171','#00e5b0','#1d8cf8'];
@@ -117,9 +116,8 @@ const Field = ({ label, children, span=1 }) => (
     {children}
   </div>
 );
-const Inp = props => <input    style={inp} {...props} />;
-const Sel = ({ children, ...p }) => <select style={{...inp,cursor:'pointer'}} {...p}>{children}</select>;
-const Tx  = props => <textarea style={{...inp,minHeight:60,resize:'vertical'}} {...props} />;
+const Inp = ({ C, ...props }) => <input style={inp(C)} {...props} />;
+const Sel = ({ C, children, ...p }) => <select style={{...inp(C),cursor:'pointer'}} {...p}>{children}</select>;const Tx  = ({ C, ...props }) => <textarea style={{...inp(C),minHeight:60,resize:'vertical'}} {...props} />;
 
 // ─── MODAL ────────────────────────────────────────────────────────────────────
 function Modal({ title, onClose, onSave, children }) {
@@ -178,7 +176,7 @@ function Section({ title, action, children }) {
 }
 
 // ─── KPI CARD ────────────────────────────────────────────────────────────────
-function KpiCard({ label, value, sub, color, icon }) {
+function KpiCard({ label, value, sub, color, icon, C }) {
   return (
     <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:10, padding:'16px 20px', position:'relative', overflow:'hidden' }}>
       <div style={{ position:'absolute', top:10, right:14, fontSize:22, opacity:.15 }}>{icon}</div>
@@ -262,10 +260,10 @@ function Dashboard({ companies, projects, opportunities, C }) {
   return (
     <>
       <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12, marginBottom:12 }}>
-        {kpis1.map(k=><KpiCard key={k.label} {...k} />)}
+        {kpis1.map(k=><KpiCard key={k.label} {...k} C={C} />)}
       </div>
       <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12, marginBottom:18 }}>
-        {kpis2.map(k=><KpiCard key={k.label} {...k} />)}
+        {kpis2.map(k=><KpiCard key={k.label} {...k} C={C} />)}
       </div>
       <div style={{ display:'grid', gridTemplateColumns:'2fr 1fr', gap:14, marginBottom:14 }}>
         <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:10, padding:20 }}>
@@ -637,7 +635,7 @@ const [search,setSearch]=useState('');
     {key:'scope',label:'Product'},
     {key:'amount',label:'Amount',render:v=><span style={{color:C.accent,fontWeight:700}}>{fmtK(v)}</span>},
     {key:'probability',label:'Prob.',render:v=><span style={{color:C.warning}}>{((v||0)*100).toFixed(0)}%</span>},
-    {key:'priority',label:'Priority',render:v=><Badge label={v||'–'} color={priorityColor(v)}/>},
+    {key:'priority',label:'Priority',render:v=><Badge label={v||'–'} color={priorityColor(v, C)}/>},
     {key:'responsible',label:'Resp.',render:v=><Badge label={v||'–'} color={C.blue}/>},
     {key:'actions',label:'Actions',render:v=><span style={{color:C.muted,fontSize:10}}>{v}</span>},
   ];
@@ -666,7 +664,7 @@ const [search,setSearch]=useState('');
                   <div style={{ fontSize:10, color:C.muted, marginBottom:6 }}>{o.scope}</div>
                   <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                     <span style={{ fontSize:12, color:C.accent, fontWeight:700 }}>{fmtK(o.amount)}</span>
-                    <Badge label={o.priority||'–'} color={priorityColor(o.priority)} />
+                    <Badge label={o.priority||'–'} color={priorityColor(o.priority, C)} />
                   </div>
                   {o.actions&&<div style={{ fontSize:9, color:C.muted, marginTop:6, borderTop:`1px solid ${C.border}`, paddingTop:5 }}>{o.actions}</div>}
                 </div>
@@ -773,7 +771,7 @@ function LOP({ projects, opportunities, C }) {
                     <td style={{padding:'6px 12px',fontSize:10,color:C.muted}}>{o.scope}</td>
                     <td colSpan={2}></td><td></td>
                     <td style={{padding:'6px 12px'}}><Badge label={`${s.icon} ${s.label}`} color={s.color}/></td>
-                    <td style={{padding:'6px 12px'}}><Badge label={o.priority||'–'} color={priorityColor(o.priority)}/></td>
+                    <td style={{padding:'6px 12px'}}><Badge label={o.priority||'–'} color={priorityColor(o.priority, C)}/></td>
                     <td style={{padding:'6px 12px',color:C.accent,fontWeight:700,fontSize:12}}>{fmtK(o.amount)}</td>
                     <td style={{padding:'6px 12px',fontSize:10,color:C.muted}}>{o.actions}</td>
                   </tr>
@@ -792,6 +790,7 @@ function LOP({ projects, opportunities, C }) {
 export default function App() {
   const [theme, setTheme] = useState(() => localStorage.getItem('crm-theme') || 'dark');
   const T = theme === 'dark' ? DARK : LIGHT_COLORS;
+  
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [page, setPage] = useState('dashboard');
@@ -867,18 +866,19 @@ return (
     <div style={{ display:'flex', height:'100vh', background:T.bg, color:T.text, fontFamily:"'IBM Plex Mono',monospace", overflow:'hidden' }}>
       <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
       <div style={{ width:210, background:T.surface, borderRight:`1px solid ${T.border}`, display:'flex', flexDirection:'column', flexShrink:0 }}>
-        <div style={{ padding:'26px 20px 20px', borderBottom:`1px solid ${T.border}` }}>
-        <img 
-  src="/ingenium.png"
-  alt="Ingenium" 
-  style={{ 
-    height:52, 
-    width:'auto', 
-    display:'block', 
-    marginBottom:10,
-    objectFit:'contain',
-    filter: theme === 'dark' ? 'brightness(0) invert(1)' : 'none'
-  }} 
+      <div style={{ padding:'26px 20px 20px', borderBottom:`1px solid ${T.border}` }}>
+      <img 
+      src="/ingenium.png"
+      alt="Ingenium" 
+      style={{ 
+          height: 'auto',
+        width: '100%',
+        maxWidth: 160,
+        display:'block', 
+        marginBottom:10,
+        objectFit:'contain',
+        filter: theme === 'dark' ? 'brightness(0) invert(1)' : 'none'
+      }} 
 />
         <div style={{ color:T.muted, fontSize:9, marginTop:2, letterSpacing:1 }}>Power Solution Tech · CRM</div>
         </div>
