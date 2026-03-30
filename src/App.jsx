@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, CartesianGrid } from "recharts";
 import { supabase } from "./supabase.js";
 import Login from "./Login.jsx";
-import * as XLSX from 'xlsx';
+// NOTE: XLSX is dynamically imported inside exportToExcel to avoid bundling/server issues on platforms like Vercel
 
 
 // ─── STATIC CONSTANTS ────────────────────────────────────────────────────────
@@ -681,7 +681,7 @@ const [search,setSearch]=useState('');
       ):(
         <>
         <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12}}>
-  <input style={{...inp, width:300}} placeholder="🔍 Search by name, stage, product..." value={search} onChange={e=>setSearch(e.target.value)} />
+  <input style={{...inp(C), width:300}} placeholder="🔍 Search by name, stage, product..." value={search} onChange={e=>setSearch(e.target.value)} />
 </div>
 <Section title={`All Opportunities (${data.length})`}>
   <DataTable cols={cols} rows={data.filter(r=>!search||JSON.stringify(r).toLowerCase().includes(search.toLowerCase()))} onEdit={open} onDelete={del} />
@@ -713,7 +713,7 @@ const [search,setSearch]=useState('');
           </Field>
           <Field label="Unit Price (€)"><Inp type="number" value={form.unitPrice} onChange={e=>setForm({...form,unitPrice:+e.target.value,amount:(+e.target.value)*(form.qty||1)})} /></Field>
           <Field label="Quantity"><Inp type="number" value={form.qty} onChange={e=>setForm({...form,qty:+e.target.value,amount:(form.unitPrice||0)*(+e.target.value)})} /></Field>
-          <Field label="Amount (€)"><Inp value={fmtEur(form.amount)} readOnly style={{...inp,color:C.accent,fontWeight:700}} /></Field>
+          <Field label="Amount (€)"><Inp value={fmtEur(form.amount)} readOnly style={{ color:C.accent, fontWeight:700 }} /></Field>
           <Field label="Probability"><Sel value={form.probability} onChange={e=>setForm({...form,probability:+e.target.value})}>{PROBS.map(p=><option key={p} value={p}>{(p*100).toFixed(0)}%</option>)}</Sel></Field>
           <Field label="Priority"><Sel value={form.priority} onChange={e=>setForm({...form,priority:e.target.value})}><option value="">–</option>{PRIORITIES.map(p=><option key={p}>{p}</option>)}</Sel></Field>
           <Field label="Actions" span={2}><Sel value={form.actions} onChange={e=>setForm({...form,actions:e.target.value})}><option value="">–</option>{ACTIONS_LIST.map(a=><option key={a}>{a}</option>)}</Sel></Field>
@@ -793,7 +793,7 @@ function LOP({ projects, opportunities, C }) {
 
 // ─── APP ──────────────────────────────────────────────────────────────────────
 export default function App() {
-  const [theme, setTheme] = useState(() => localStorage.getItem('crm-theme') || 'dark');
+  const [theme, setTheme] = useState(() => (typeof window !== 'undefined' && localStorage.getItem('crm-theme')) || 'dark');
   const T = theme === 'dark' ? DARK : LIGHT_COLORS;
   C = T;
   const [user, setUser] = useState(null);
@@ -813,11 +813,11 @@ export default function App() {
     supabase.auth.getSession().then(({ data })=>{
       setUser(data.session?.user ?? null);
       setAuthLoading(false);
-    });
+    }).catch(()=>setAuthLoading(false));
     const { data: listener } = supabase.auth.onAuthStateChange((_e, session)=>{
       setUser(session?.user ?? null);
     });
-    return ()=>listener.subscription.unsubscribe();
+  return ()=>{ if(listener?.subscription?.unsubscribe) listener.subscription.unsubscribe(); };
   },[]);
 
   // ── Load data once user is logged in ──
@@ -838,16 +838,22 @@ export default function App() {
     loadAll();
   },[user]);
 
-const exportToExcel = () => {
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(companies),     'Companies');
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(projects),      'Projects');
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(opportunities), 'Opportunities');
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(leads),         'Leads');
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(partners),      'Partners');
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(responsibles),  'Responsibles');
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(products),      'Products');
-  XLSX.writeFile(wb, `IngeniumCRM_backup_${new Date().toISOString().slice(0,10)}.xlsx`);
+const exportToExcel = async () => {
+  try {
+    const XLSX = await import('xlsx');
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(companies),     'Companies');
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(projects),      'Projects');
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(opportunities), 'Opportunities');
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(leads),         'Leads');
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(partners),      'Partners');
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(responsibles),  'Responsibles');
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(products),      'Products');
+    XLSX.writeFile(wb, `IngeniumCRM_backup_${new Date().toISOString().slice(0,10)}.xlsx`);
+  } catch (err) {
+    console.error('Export failed', err);
+    alert('Export failed. See console for details.');
+  }
 };
 
   const needsSetup = responsibles.length===0||products.length===0;
