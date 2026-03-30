@@ -38,6 +38,12 @@ const LIGHT_COLORS = {
 };
 const C = DARK;
 const inp = { width:'100%', background:C.surface, border:`1px solid ${C.border}`, color:C.text, padding:'8px 12px', borderRadius:6, fontSize:12, fontFamily:"'IBM Plex Mono',monospace", boxSizing:'border-box', outline:'none' };
+const stageMap      = Object.fromEntries(STAGES.map(s=>[s.id,s]));
+const priorityColor = p => ({Urgent:C.danger,Hurry:C.orange,Standard:C.blue,Low:C.muted,'Very Low':C.muted,'N/A':C.muted})[p]||C.muted;
+const fmtK   = n => n ? `€${(n/1000).toFixed(1)}K` : '€0';
+const fmtEur = n => n ? `€${Number(n).toLocaleString('it-IT')}` : '€0';
+const daysSince = d => { if(!d) return '–'; return Math.floor((Date.now()-new Date(d))/86400000); };
+const CHART_COLORS = ['#60a5fa','#a78bfa','#fb923c','#fbbf24','#34d399','#f87171','#00e5b0','#1d8cf8'];
 
 // ─── SUPABASE HELPERS ─────────────────────────────────────────────────────────
 async function dbLoad(table) {
