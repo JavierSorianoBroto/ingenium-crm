@@ -24,12 +24,20 @@ const PROBS        = [0.05,0.25,0.5,0.75,0.9];
 const PRODUCT_CATS = ['Product','Service','Software','Hardware','Consulting','Maintenance'];
 
 // ─── COLORS ───────────────────────────────────────────────────────────────────
-const C = {
+// ─── COLORS ───────────────────────────────────────────────────────────────────
+const DARK = {
   bg:'#04101d', surface:'#081a2e', card:'#0c2240', border:'#153352',
   accent:'#00e5b0', accentDim:'rgba(0,229,176,.12)', blue:'#1d8cf8',
   text:'#c5daf0', muted:'#4d7597', danger:'#f87171', success:'#34d399',
   warning:'#fbbf24', orange:'#fb923c', purple:'#a78bfa',
 };
+const LIGHT_COLORS = {
+  bg:'#f5f7fa', surface:'#ffffff', card:'#ffffff', border:'#e2e8f0',
+  accent:'#0070f3', accentDim:'rgba(0,112,243,.08)', blue:'#0070f3',
+  text:'#1a202c', muted:'#718096', danger:'#e53e3e', success:'#38a169',
+  warning:'#d69e2e', orange:'#dd6b20', purple:'#805ad5',
+};
+const C = DARK;
 const inp = { width:'100%', background:C.surface, border:`1px solid ${C.border}`, color:C.text, padding:'8px 12px', borderRadius:6, fontSize:12, fontFamily:"'IBM Plex Mono',monospace", boxSizing:'border-box', outline:'none' };
 const stageMap      = Object.fromEntries(STAGES.map(s=>[s.id,s]));
 const priorityColor = p => ({Urgent:C.danger,Hurry:C.orange,Standard:C.blue,Low:C.muted,'Very Low':C.muted,'N/A':C.muted})[p]||C.muted;
@@ -758,9 +766,12 @@ function LOP({ projects, opportunities }) {
 
 // ─── APP ──────────────────────────────────────────────────────────────────────
 export default function App() {
-  const [user,          setUser]          = useState(null);
-  const [authLoading,   setAuthLoading]   = useState(true);
-  const [page,          setPage]          = useState('dashboard');
+  const [theme, setTheme] = useState(() => localStorage.getItem('crm-theme') || 'dark');
+  const colors = theme === 'dark' ? DARK : LIGHT_COLORS;
+  const colors = theme === 'dark' ? DARK : LIGHT_COLORS;
+  const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [page, setPage] = useState('dashboard');
   const [companies,     setCompanies]     = useState([]);
   const [partners,      setPartners]      = useState([]);
   const [leads,         setLeads]         = useState([]);
@@ -830,7 +841,11 @@ const exportToExcel = () => {
   );
 
   return (
-    <div style={{ display:'flex', height:'100vh', background:C.bg, color:C.text, fontFamily:"'IBM Plex Mono',monospace", overflow:'hidden' }}>
+    <div style={{ display:'flex', height:'100vh', background:colors.bg, color:colors.text, fontFamily:"'IBM Plex Mono',monospace", overflow:'hidden' }}>
+      <style>{`
+        :root { --bg: ${colors.bg}; --surface: ${colors.surface}; --card: ${colors.card}; --border: ${colors.border}; --accent: ${colors.accent}; --text: ${colors.text}; --muted: ${colors.muted}; }
+        body { background: ${colors.bg}; }
+      `}</style>
       <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
       <div style={{ width:210, background:C.surface, borderRight:`1px solid ${C.border}`, display:'flex', flexDirection:'column', flexShrink:0 }}>
         <div style={{ padding:'22px 20px 16px', borderBottom:`1px solid ${C.border}` }}>
