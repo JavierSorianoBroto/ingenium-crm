@@ -415,6 +415,7 @@ function Settings({ responsibles, setResponsibles, products, setProducts }) {
 function Companies({ data, setData }) {
   const blank={name:'',cls:'',province:'',region:'',tel:'',email:'',address:'',comments:'',date:new Date().toISOString().slice(0,10)};
   const [modal,setModal]=useState(null);const [form,setForm]=useState(blank);
+  const [search,setSearch]=useState('');
   const open=row=>{setForm(row||blank);setModal(row?'edit':'new');};
   const save=async()=>{
     if(modal==='new'){const r=await dbInsert('companies',form);if(r)setData(d=>[...d,r]);}
@@ -432,7 +433,8 @@ function Companies({ data, setData }) {
   return(
     <>
       <Section title={`Companies (${data.length})`} action={<Btn onClick={()=>open(null)}>+ New Company</Btn>}>
-        <DataTable cols={cols} rows={data} onEdit={open} onDelete={del} />
+  <input style={{...inp, marginBottom:12, width:300}} placeholder="🔍 Search by name, province, email..." value={search} onChange={e=>setSearch(e.target.value)} />
+  <DataTable cols={cols} rows={data.filter(r=>!search||JSON.stringify(r).toLowerCase().includes(search.toLowerCase()))} onEdit={open} onDelete={del} />
       </Section>
       {modal&&(<Modal title={modal==='new'?'New Company':'Edit Company'} onClose={()=>setModal(null)} onSave={save}>
         <Field label="Company Name" span={2}><Inp value={form.name} onChange={e=>setForm({...form,name:e.target.value})} /></Field>
@@ -527,6 +529,7 @@ function Partners({ data, setData }) {
 function Projects({ data, setData, companies, responsibles }) {
   const blank={responsible:'',name:'',municipality:'',province:'',partner:'',partnerFee:0,contact:'',company:'',kind:'Sales',firstContact:'',lastContact:'',followUp:''};
   const [modal,setModal]=useState(null);const [form,setForm]=useState(blank);
+  const [search,setSearch]=useState('');
   const open=row=>{setForm(row||blank);setModal(row?'edit':'new');};
   const save=async()=>{
     if(modal==='new'){const r=await dbInsert('projects',form);if(r)setData(d=>[...d,r]);}
@@ -547,7 +550,8 @@ function Projects({ data, setData, companies, responsibles }) {
   return(
     <>
       <Section title={`Projects (${data.length})`} action={<Btn onClick={()=>open(null)}>+ New Project</Btn>}>
-        <DataTable cols={cols} rows={data} onEdit={open} onDelete={del} />
+  <input style={{...inp, marginBottom:12, width:300}} placeholder="🔍 Search by name, company, municipality..." value={search} onChange={e=>setSearch(e.target.value)} />
+  <DataTable cols={cols} rows={data.filter(r=>!search||JSON.stringify(r).toLowerCase().includes(search.toLowerCase()))} onEdit={open} onDelete={del} />
       </Section>
       {modal&&(<Modal title={modal==='new'?'New Project':'Edit Project'} onClose={()=>setModal(null)} onSave={save}>
         <Field label="Responsible">
@@ -576,6 +580,7 @@ function Opportunities({ data, setData, projects, responsibles, products }) {
   const blank={projectId:'',responsible:'',projectName:'',opptyName:'',opportunity:'',scope:'',unitPrice:0,qty:1,amount:0,probability:0.05,stage:'NEW_OPPORTUNITY',priority:'Standard',actions:'',comments:'',inserted:'',offerDate:'',offerNum:''};
   const [modal,setModal]=useState(null);const [form,setForm]=useState(blank);
   const [view,setView]=useState('kanban');
+const [search,setSearch]=useState('');
   const open=row=>{setForm(row||blank);setModal(row?'edit':'new');};
   const save=async()=>{
     const f={...form,amount:(form.unitPrice||0)*(form.qty||1)};
@@ -634,7 +639,8 @@ function Opportunities({ data, setData, projects, responsibles, products }) {
         </div>
       ):(
         <Section title={`All Opportunities (${data.length})`}>
-          <DataTable cols={cols} rows={data} onEdit={open} onDelete={del} />
+  <input style={{...inp, marginBottom:12, width:300}} placeholder="🔍 Search by name, stage, product..." value={search} onChange={e=>setSearch(e.target.value)} />
+  <DataTable cols={cols} rows={data.filter(r=>!search||JSON.stringify(r).toLowerCase().includes(search.toLowerCase()))} onEdit={open} onDelete={del} />
         </Section>
       )}
       {modal&&(
