@@ -768,7 +768,6 @@ function LOP({ projects, opportunities }) {
 export default function App() {
   const [theme, setTheme] = useState(() => localStorage.getItem('crm-theme') || 'dark');
   const colors = theme === 'dark' ? DARK : LIGHT_COLORS;
-  const colors = theme === 'dark' ? DARK : LIGHT_COLORS;
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [page, setPage] = useState('dashboard');
