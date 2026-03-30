@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Email Reminders</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'IBM Plex Mono', monospace;
+      background: linear-gradient(135deg, #04101d 0%, #081a2e 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .container {
+      background: #0c2240;
+      border: 1px solid #153352;
+      border-radius: 12px;
+      padding: 40px;
+      max-width: 500px;
+      width: 100%;
+      box-shadow: 0 24px 80px rgba(0,0,0,.8);
+    }
+    h1 {
+      color: #00e5b0;
+      margin-bottom: 30px;
+      font-size: 24px;
+      text-align: center;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      color: #4d7597;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 8px;
+    }
+    input, textarea {
+      width: 100%;
+      background: #081a2e;
+      border: 1px solid #153352;
+      color: #c5daf0;
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-family: 'IBM Plex Mono', monospace;
+      box-sizing: border-box;
+    }
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: #00e5b0;
+      box-shadow: 0 0 0 2px rgba(0,229,176,.2);
+    }
+    button {
+      width: 100%;
+      background: #00e5b0;
+      border: none;
+      color: #04101d;
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: all 0.2s;
+    }
+    button:hover {
+      background: #00d4a0;
+      transform: translateY(-2px);
+    }
+    button:active {
+      transform: translateY(0);
+    }
+    .status {
+      margin-top: 20px;
+      padding: 12px;
+      border-radius: 6px;
+      text-align: center;
+      font-size: 12px;
+      display: none;
+    }
+    .status.success {
+      background: rgba(52,211,153,.1);
+      border: 1px solid rgba(52,211,153,.4);
+      color: #34d399;
+    }
+    .status.error {
+      background: rgba(248,113,113,.1);
+      border: 1px solid rgba(248,113,113,.4);
+      color: #f87171;
+    }
+    .status.loading {
+      background: rgba(29,140,248,.1);
+      border: 1px solid rgba(29,140,248,.4);
+      color: #1d8cf8;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📧 Test Email Reminders</h1>
+    
+    <div class="form-group">
+      <label for="email">Email Address</label>
+      <input type="email" id="email" placeholder="test@example.com" required>
+    </div>
+
+    <div class="form-group">
+      <label for="message">Message</label>
+      <textarea id="message" placeholder="Test message for email..." rows="4"></textarea>
+    </div>
+
+    <button onclick="sendTestEmail()">Send Test Email</button>
+    
+    <div id="status" class="status"></div>
+  </div>
+
+  <script>
+    async function sendTestEmail() {
+      const email = document.getElementById('email').value;
+      const message = document.getElementById('message').value;
+      const statusDiv = document.getElementById('status');
+
+      if (!email) {
+        statusDiv.className = 'status error';
+        statusDiv.textContent = '❌ Please enter an email address';
+        statusDiv.style.display = 'block';
+        return;
+      }
+
+      statusDiv.className = 'status loading';
+      statusDiv.textContent = '⏳ Sending...';
+      statusDiv.style.display = 'block';
+
+      try {
+        const response = await fetch('/api/send-test-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            email, 
+            message: message || 'This is a test email from Ingenium CRM' 
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          statusDiv.className = 'status success';
+          statusDiv.textContent = '✅ Email sent successfully!';
+          document.getElementById('email').value = '';
+          document.getElementById('message').value = '';
+        } else {
+          statusDiv.className = 'status error';
+          statusDiv.textContent = '❌ Error: ' + (data.error || 'Failed to send');
+        }
+      } catch (err) {
+        statusDiv.className = 'status error';
+        statusDiv.textContent = '❌ Error: ' + err.message;
+      }
+    }
+
+    document.getElementById('email').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') sendTestEmail();
+    });
+  </script>
+</body>
+</html>
