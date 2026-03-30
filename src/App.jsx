@@ -32,13 +32,37 @@ const DARK = {
   warning:'#fbbf24', orange:'#fb923c', purple:'#a78bfa',
 };
 const LIGHT_COLORS = {
-  bg:'#f5f7fa', surface:'#ffffff', card:'#ffffff', border:'#e2e8f0',
-  accent:'#0070f3', accentDim:'rgba(0,112,243,.08)', blue:'#0070f3',
-  text:'#1a202c', muted:'#718096', danger:'#e53e3e', success:'#38a169',
-  warning:'#d69e2e', orange:'#dd6b20', purple:'#805ad5',
+  bg:'#f6f8fb',
+  surface:'#ffffff',
+  card:'#ffffff',
+  border:'#e5eaf2',
+  
+  accent:'#2563eb',
+  accentDim:'rgba(37,99,235,.08)',
+  blue:'#2563eb',
+
+  text:'#0f172a',
+  muted:'#64748b',
+
+  danger:'#dc2626',
+  success:'#16a34a',
+  warning:'#d97706',
+  orange:'#ea580c',
+  purple:'#7c3aed',
 };
-const C = DARK;
-const inp = { width:'100%', background:C.surface, border:`1px solid ${C.border}`, color:C.text, padding:'8px 12px', borderRadius:6, fontSize:12, fontFamily:"'IBM Plex Mono',monospace", boxSizing:'border-box', outline:'none' };
+const C = LIGHT_COLORS;
+const inp = { 
+  width:'100%', 
+  background:'#ffffff',
+  border:`1px solid ${C.border}`, 
+  color:C.text, 
+  padding:'9px 12px', 
+  borderRadius:8,
+  fontSize:12, 
+  fontFamily:"'IBM Plex Mono',monospace", 
+  boxSizing:'border-box', 
+  outline:'none' 
+};
 const stageMap      = Object.fromEntries(STAGES.map(s=>[s.id,s]));
 const priorityColor = p => ({Urgent:C.danger,Hurry:C.orange,Standard:C.blue,Low:C.muted,'Very Low':C.muted,'N/A':C.muted})[p]||C.muted;
 const fmtK   = n => n ? `€${(n/1000).toFixed(1)}K` : '€0';
@@ -843,15 +867,16 @@ return (
     <div style={{ display:'flex', height:'100vh', background:T.bg, color:T.text, fontFamily:"'IBM Plex Mono',monospace", overflow:'hidden' }}>
       <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
       <div style={{ width:210, background:T.surface, borderRight:`1px solid ${T.border}`, display:'flex', flexDirection:'column', flexShrink:0 }}>
-        <div style={{ padding:'22px 20px 16px', borderBottom:`1px solid ${T.border}` }}>
+        <div style={{ padding:'26px 20px 20px', borderBottom:`1px solid ${T.border}` }}>
         <img 
   src="/ingenium.png"
   alt="Ingenium" 
   style={{ 
-    height:36, 
+    height:52, 
     width:'auto', 
     display:'block', 
-    marginBottom:6,
+    marginBottom:10,
+    objectFit:'contain',
     filter: theme === 'dark' ? 'brightness(0) invert(1)' : 'none'
   }} 
 />
