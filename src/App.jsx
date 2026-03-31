@@ -822,28 +822,30 @@ export default function App() {
   },[]);
 
   // ── Load data once user is logged in ──
-  useEffect(()=>{
-    if(!user) return;
-    setDataLoading(true);
-    async function loadAll() {
-      const [c,pa,l,pr,o,r,prod] = await Promise.all([
-        const { data: roleData } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', user.id)
-        .single();
-      setIsAdmin(roleData?.role === 'admin');
-        dbLoad('companies'), dbLoad('partners'), dbLoad('leads'),
-        dbLoad('projects'), dbLoad('opportunities'),
-        dbLoad('responsibles'), dbLoad('products'),
-      ]);
-      setCompanies(c); setPartners(pa); setLeads(l);
-      setProjects(pr); setOpportunities(o);
-      setResponsibles(r); setProducts(prod);
-      setDataLoading(false);
-    }
-    loadAll();
-  },[user]);
+ useEffect(()=>{
+  if(!user) return;
+  setDataLoading(true);
+  async function loadAll() {
+    const [c,pa,l,pr,o,r,prod] = await Promise.all([
+      dbLoad('companies'), dbLoad('partners'), dbLoad('leads'),
+      dbLoad('projects'), dbLoad('opportunities'),
+      dbLoad('responsibles'), dbLoad('products'),
+    ]);
+    setCompanies(c); setPartners(pa); setLeads(l);
+    setProjects(pr); setOpportunities(o);
+    setResponsibles(r); setProducts(prod);
+
+    const { data: roleData } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id)
+      .single();
+    setIsAdmin(roleData?.role === 'admin');
+
+    setDataLoading(false);
+  }
+  loadAll();
+},[user]);
 
 const exportToExcel = async () => {
   try {
@@ -882,22 +884,26 @@ const exportToExcel = async () => {
 
 return (
     <div style={{ display:'flex', height:'100vh', background:T.bg, color:T.text, fontFamily:"'IBM Plex Mono',monospace", overflow:'hidden' }}>
+      <div style={{position:'fixed', bottom:10, right:10, background:'red', color:'white', padding:'8px 12px', borderRadius:6, fontSize:12, zIndex:9999}}>
+        isAdmin: {String(isAdmin)}
+      </div>
       <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
       <div style={{ width:210, background:T.surface, borderRight:`1px solid ${T.border}`, display:'flex', flexDirection:'column', flexShrink:0 }}>
       <div style={{ padding:'26px 20px 20px', borderBottom:`1px solid ${T.border}` }}>
       <img 
-      src="/ingenium.png"
-      alt="Ingenium" 
-      style={{ 
-          height: 'auto',
-        width: '100%',
-        maxWidth: 160,
-        display:'block', 
-        marginBottom:10,
-        objectFit:'contain',
-        filter: theme === 'dark' ? 'brightness(0) invert(1)' : 'none'
-      }} 
+  src="/ingenium.png"
+  alt="Ingenium" 
+  style={{ 
+    height: 'auto',
+    width: '100%',
+    maxWidth: 160,
+    display: 'block', 
+    marginBottom: 10,
+    objectFit: 'contain',
+    filter: theme === 'dark' ? 'brightness(0) invert(1)' : 'none'
+  }} 
 />
+
         <div style={{ color:T.muted, fontSize:9, marginTop:2, letterSpacing:1 }}>Power Solution Tech · CRM</div>
         </div>
 
