@@ -145,8 +145,7 @@ function Modal({ title, onClose, onSave, children }) {
 }
 
 // ─── DATA TABLE ───────────────────────────────────────────────────────────────
-function DataTable({ cols, rows, onEdit, onDelete }) {
-  return (
+function DataTable({ cols, rows, onEdit, onDelete, isAdmin }) {  return (
     <div style={{ overflowX:'auto' }}>
       <table style={{ width:'100%', borderCollapse:'collapse', fontSize:12 }}>
         <thead>
@@ -159,7 +158,7 @@ function DataTable({ cols, rows, onEdit, onDelete }) {
               {cols.map(c=><td key={c.key} style={{ padding:'9px 12px', color:C.text, verticalAlign:'middle' }}>{c.render?c.render(row[c.key],row):(row[c.key]||'–')}</td>)}
               <td style={{ padding:'9px 12px', whiteSpace:'nowrap', textAlign:'right' }}>
                 <Btn variant="secondary" onClick={()=>onEdit(row)} style={{ marginRight:6, fontSize:10, padding:'4px 10px' }}>Edit</Btn>
-                <Btn variant="danger"    onClick={()=>onDelete(row.id)} style={{ fontSize:10, padding:'4px 10px' }}>✕</Btn>
+                {isAdmin && <Btn variant="danger" onClick={()=>onDelete(row.id)} style={{ fontSize:10, padding:'4px 10px' }}>✕</Btn>}
               </td>
             </tr>
           ))}
@@ -375,7 +374,7 @@ function Dashboard({ companies, projects, opportunities, C }) {
 }
 
 // ─── SETTINGS ────────────────────────────────────────────────────────────────
-function Settings({ responsibles, setResponsibles, products, setProducts, C }) {
+function Settings({ responsibles, setResponsibles, products, setProducts, C, isAdmin }) {
   const blankR = { name:'', role:'', email:'', tel:'' };
   const blankP = { name:'', category:'', listPrice:0, unit:'', description:'' };
   const [rModal,setRModal] = useState(false);
@@ -421,10 +420,10 @@ function Settings({ responsibles, setResponsibles, products, setProducts, C }) {
         </div>
       )}
       <Section title={`Responsibles (${responsibles.length})`} action={<Btn onClick={()=>openR(null)}>+ Add Responsible</Btn>}>
-        <DataTable cols={rCols} rows={responsibles} onEdit={openR} onDelete={deleteR} />
+        <DataTable cols={rCols} rows={responsibles} onEdit={openR} onDelete={deleteR} isAdmin={isAdmin} />
       </Section>
       <Section title={`Products & Services (${products.length})`} action={<Btn onClick={()=>openP(null)}>+ Add Product / Service</Btn>}>
-        <DataTable cols={pCols} rows={products} onEdit={openP} onDelete={deleteP} />
+        <DataTable cols={pCols} rows={products} onEdit={openP} onDelete={deleteP} isAdmin={isAdmin} />
       </Section>
       {rModal&&(
         <Modal title={rForm.id?'Edit Responsible':'New Responsible'} onClose={()=>setRModal(false)} onSave={saveR}>
@@ -448,7 +447,7 @@ function Settings({ responsibles, setResponsibles, products, setProducts, C }) {
 }
 
 // ─── COMPANIES ────────────────────────────────────────────────────────────────
-function Companies({ data, setData, C }) {
+function Companies({ data, setData, C, isAdmin }) {
   const blank={name:'',cls:'',province:'',region:'',tel:'',email:'',address:'',comments:'',date:new Date().toISOString().slice(0,10)};
   const [modal,setModal]=useState(null);const [form,setForm]=useState(blank);
   const [search,setSearch]=useState('');
@@ -473,7 +472,7 @@ function Companies({ data, setData, C }) {
   <Btn onClick={()=>open(null)}>+ New Company</Btn>
 </div>
 <Section title={`Companies (${data.length})`}>
-  <DataTable cols={cols} rows={data.filter(r=>!search||JSON.stringify(r).toLowerCase().includes(search.toLowerCase()))} onEdit={open} onDelete={del} />
+  <DataTable cols={cols} rows={data.filter(r=>!search||JSON.stringify(r).toLowerCase().includes(search.toLowerCase()))} onEdit={open} onDelete={del} isAdmin={isAdmin} />
 </Section>
       {modal&&(<Modal title={modal==='new'?'New Company':'Edit Company'} onClose={()=>setModal(null)} onSave={save}>
         <Field label="Company Name" span={2}><Inp value={form.name} onChange={e=>setForm({...form,name:e.target.value})} /></Field>
@@ -490,7 +489,7 @@ function Companies({ data, setData, C }) {
 }
 
 // ─── LEADS ────────────────────────────────────────────────────────────────────
-function Leads({ data, setData, C }) {
+function Leads({ data, setData, C, isAdmin }) {
   const blank={surname:'',name:'',role:'',company:'',province:'',region:'',tel:'',email:'',address:'',comments:'',date:new Date().toISOString().slice(0,10)};
   const [modal,setModal]=useState(null);const [form,setForm]=useState(blank);
   const open=row=>{setForm(row||blank);setModal(row?'edit':'new');};
@@ -509,7 +508,7 @@ function Leads({ data, setData, C }) {
   return(
     <>
       <Section title={`Leads (${data.length})`} action={<Btn onClick={()=>open(null)}>+ New Lead</Btn>}>
-        <DataTable cols={cols} rows={data} onEdit={open} onDelete={del} />
+        <DataTable cols={cols} rows={data} onEdit={open} onDelete={del} isAdmin={isAdmin} />
       </Section>
       {modal&&(<Modal title={modal==='new'?'New Lead':'Edit Lead'} onClose={()=>setModal(null)} onSave={save}>
         <Field label="Surname"><Inp value={form.surname} onChange={e=>setForm({...form,surname:e.target.value})} /></Field>
@@ -528,7 +527,7 @@ function Leads({ data, setData, C }) {
 }
 
 // ─── PARTNERS ─────────────────────────────────────────────────────────────────
-function Partners({ data, setData, C }) {
+function Partners({ data, setData, C, isAdmin }) {
   const blank={surname:'',name:'',kind:'',tel:'',email:'',company:'',region:'',address:'',comments:''};
   const [modal,setModal]=useState(null);const [form,setForm]=useState(blank);
   const open=row=>{setForm(row||blank);setModal(row?'edit':'new');};
@@ -547,7 +546,7 @@ function Partners({ data, setData, C }) {
   return(
     <>
       <Section title={`Partners (${data.length})`} action={<Btn onClick={()=>open(null)}>+ New Partner</Btn>}>
-        <DataTable cols={cols} rows={data} onEdit={open} onDelete={del} />
+        <DataTable cols={cols} rows={data} onEdit={open} onDelete={del} isAdmin={isAdmin} />
       </Section>
       {modal&&(<Modal title={modal==='new'?'New Partner':'Edit Partner'} onClose={()=>setModal(null)} onSave={save}>
         <Field label="Surname / Agency"><Inp value={form.surname} onChange={e=>setForm({...form,surname:e.target.value})} /></Field>
@@ -565,7 +564,7 @@ function Partners({ data, setData, C }) {
 }
 
 // ─── PROJECTS ─────────────────────────────────────────────────────────────────
-function Projects({ data, setData, companies, responsibles, C }) {
+function Projects({ data, setData, companies, responsibles, C, isAdmin }) {
   const blank={responsible:'',name:'',municipality:'',province:'',partner:'',partnerFee:0,contact:'',company:'',kind:'Sales',firstContact:'',lastContact:'',followUp:''};
   const [modal,setModal]=useState(null);const [form,setForm]=useState(blank);
   const [search,setSearch]=useState('');
@@ -593,7 +592,7 @@ function Projects({ data, setData, companies, responsibles, C }) {
   <Btn onClick={()=>open(null)}>+ New Project</Btn>
 </div>
 <Section title={`Projects (${data.length})`}>
-  <DataTable cols={cols} rows={data.filter(r=>!search||JSON.stringify(r).toLowerCase().includes(search.toLowerCase()))} onEdit={open} onDelete={del} />
+  <DataTable cols={cols} rows={data.filter(r=>!search||JSON.stringify(r).toLowerCase().includes(search.toLowerCase()))} onEdit={open} onDelete={del} isAdmin={isAdmin} />
 </Section>
       {modal&&(<Modal title={modal==='new'?'New Project':'Edit Project'} onClose={()=>setModal(null)} onSave={save}>
         <Field label="Responsible">
@@ -618,7 +617,7 @@ function Projects({ data, setData, companies, responsibles, C }) {
 }
 
 // ─── OPPORTUNITIES ────────────────────────────────────────────────────────────
-function Opportunities({ data, setData, projects, responsibles, products, C }) {
+function Opportunities({ data, setData, projects, responsibles, products, C, isAdmin }) {
   const blank={projectId:'',responsible:'',projectName:'',opptyName:'',opportunity:'',scope:'',unitPrice:0,qty:1,amount:0,probability:0.05,stage:'NEW_OPPORTUNITY',priority:'Standard',actions:'',comments:'',inserted:'',offerDate:'',offerNum:''};
   const [modal,setModal]=useState(null);const [form,setForm]=useState(blank);
   const [view,setView]=useState('kanban');
@@ -685,7 +684,7 @@ const [search,setSearch]=useState('');
   <input style={{...inp(C), width:300}} placeholder="🔍 Search by name, stage, product..." value={search} onChange={e=>setSearch(e.target.value)} />
 </div>
 <Section title={`All Opportunities (${data.length})`}>
-  <DataTable cols={cols} rows={data.filter(r=>!search||JSON.stringify(r).toLowerCase().includes(search.toLowerCase()))} onEdit={open} onDelete={del} />
+  <DataTable cols={cols} rows={data.filter(r=>!search||JSON.stringify(r).toLowerCase().includes(search.toLowerCase()))} onEdit={open} onDelete={del} isAdmin={isAdmin} />
 </Section>
 </>
       )}
@@ -808,6 +807,7 @@ export default function App() {
   const [responsibles,  setResponsibles]  = useState([]);
   const [products,      setProducts]      = useState([]);
   const [dataLoading,   setDataLoading]   = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   // ── Auth ──
   useEffect(()=>{
@@ -827,6 +827,12 @@ export default function App() {
     setDataLoading(true);
     async function loadAll() {
       const [c,pa,l,pr,o,r,prod] = await Promise.all([
+        const { data: roleData } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .single();
+      setIsAdmin(roleData?.role === 'admin');
         dbLoad('companies'), dbLoad('partners'), dbLoad('leads'),
         dbLoad('projects'), dbLoad('opportunities'),
         dbLoad('responsibles'), dbLoad('products'),
@@ -931,13 +937,13 @@ return (
         </div>
         <div style={{ flex:1, overflowY:'auto', padding:24, background:T.bg }}>
           {page==='dashboard'     && <Dashboard companies={companies} projects={projects} opportunities={opportunities} C={T} />}
-          {page==='projects'      && <Projects data={projects} setData={setProjects} companies={companies} responsibles={responsibles} C={T} />}
-          {page==='opportunities' && <Opportunities data={opportunities} setData={setOpportunities} projects={projects} responsibles={responsibles} products={products} C={T} />}
+          {page==='projects'      && <Projects data={projects} setData={setProjects} companies={companies} responsibles={responsibles} C={T} isAdmin={isAdmin} />}
+          {page==='opportunities' && <Opportunities data={opportunities} setData={setOpportunities} projects={projects} responsibles={responsibles} products={products} C={T} isAdmin={isAdmin} />}
           {page==='lop'           && <LOP projects={projects} opportunities={opportunities} C={T} />}
-          {page==='companies'     && <Companies data={companies} setData={setCompanies} C={T} />}
-          {page==='leads'         && <Leads data={leads} setData={setLeads} C={T} />}
-          {page==='partners'      && <Partners data={partners} setData={setPartners} C={T} />}
-          {page==='settings'      && <Settings responsibles={responsibles} setResponsibles={setResponsibles} products={products} setProducts={setProducts} C={T} />}
+          {page==='companies'     && <Companies data={companies} setData={setCompanies} C={T} isAdmin={isAdmin} />}
+          {page==='leads'         && <Leads data={leads} setData={setLeads} C={T} isAdmin={isAdmin} />}
+          {page==='partners'      && <Partners data={partners} setData={setPartners} C={T} isAdmin={isAdmin} />}
+          {page==='settings'      && <Settings responsibles={responsibles} setResponsibles={setResponsibles} products={products} setProducts={setProducts} C={T} isAdmin={isAdmin} />}
         </div>
       </div>
     </div>
