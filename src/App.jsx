@@ -79,7 +79,8 @@ async function dbLoad(table) {
   return data || [];
 }
 async function dbInsert(table, row) {
-  const { _id, ...rest } = row; // Remove id if present, Supabase auto-generates it
+  const { id: _id, ...rest } = row;
+ // Remove id if present, Supabase auto-generates it
   const { data, error } = await supabase.from(table).insert(rest).select().single();
   if (error) { console.error(`Error inserting ${table}:`, error); return null; }
   return data;
