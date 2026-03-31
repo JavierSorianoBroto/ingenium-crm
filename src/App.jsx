@@ -392,20 +392,9 @@ function Settings({ responsibles, setResponsibles, products, setProducts, C }) {
   const deleteR = async id => { await dbDelete('responsibles',id); setResponsibles(d=>d.filter(x=>x.id!==id)); };
 
   const saveP = async () => {
-  console.log('saveP called, pForm:', pForm);
-  if(pForm.id){
-    console.log('updating...');
-    const u=await dbUpdate('products',pForm);
-    console.log('update result:', u);
-    if(u)setProducts(d=>d.map(x=>x.id===pForm.id?u:x));
-  } else {
-    console.log('inserting...');
-    const c=await dbInsert('products',pForm);
-    console.log('insert result:', c);
-    if(c)setProducts(d=>[...d,c]);
-  }
-  setPModal(false);
-};
+    if(pForm.id){const u=await dbUpdate('products',pForm);if(u)setProducts(d=>d.map(x=>x.id===pForm.id?u:x));}
+    else{const c=await dbInsert('products',pForm);if(c)setProducts(d=>[...d,c]);}
+    setPModal(false);
   };
   const openP = row => { setPForm(row||blankP); setPModal(true); };
   const deleteP = async id => { await dbDelete('products',id); setProducts(d=>d.filter(x=>x.id!==id)); };
